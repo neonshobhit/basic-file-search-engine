@@ -31,6 +31,22 @@ func PrettyPrint(v interface{}) (err error) {
 
 var wordMap map[string]map[string]FileIndex = make(map[string]map[string]FileIndex)
 var fileIndex map[string]File = make(map[string]File)
+var stopWords map[string]bool = make(map[string]bool)
+
+func fetchStopWords() {
+	file, err := os.Open("./stopwords.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+
+	for scanner.Scan() {
+		word := scanner.Text()
+		stopWords[word] = true
+	}
+}
 
 func readDataFromFiles() {
 	files, err := os.ReadDir("./data/")
@@ -50,6 +66,9 @@ func readDataFromFiles() {
 
 			for scanner.Scan() {
 				word := scanner.Text()
+				if _, ok := stopWords[word]; ok {
+					continue
+				}
 				_, ok := wordMap[word]
 				if !ok {
 					wordMap[word] = make(map[string]FileIndex)
@@ -92,6 +111,7 @@ func search(inp string) map[string]File {
 			result = temp
 		}
 	}
+	result = temp
 
 	return result
 }
@@ -108,6 +128,7 @@ func sortFiles(inp map[string]File) (result []File) {
 	return tempResult
 }
 func main() {
+	fetchStopWords()
 	readDataFromFiles()
-	fmt.Println(sortFiles(search("Hello")))
+	fmt.Println(sortFiles(search("till")))
 }
