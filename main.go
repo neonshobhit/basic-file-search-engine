@@ -66,6 +66,7 @@ func readDataFromFiles() {
 
 			for scanner.Scan() {
 				word := scanner.Text()
+				word = strings.ToLower(word)
 				if _, ok := stopWords[word]; ok {
 					continue
 				}
@@ -94,6 +95,7 @@ func search(inp string) map[string]File {
 	var temp map[string]File = make(map[string]File)
 	for scanner.Scan() {
 		word := scanner.Text()
+		word = strings.ToLower(word)
 		fileIndx, ok := wordMap[word]
 		if ok {
 			for k, v := range fileIndx {
